@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 
 class CurrencyTimeStampOut(BaseModel):
-    timestamp: datetime
+    date_and_time: datetime
 
     class Config:
-        orm_mode = True  # это может вызвать ошибку потому что у нас метод get, а не post
+        from_attributes = True
