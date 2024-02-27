@@ -11,7 +11,7 @@ router = APIRouter()
 
 
 @router.put("/update-rates", tags=["currency"])
-async def update_rates(base: str = 'EUR', symbols: str = '') -> dict:
+async def update_rates(base: str = 'EUR', symbols: str = ''):
     data = await get_rates(base, symbols)
     if data and data.get("success"):
         rates = data.get("rates")

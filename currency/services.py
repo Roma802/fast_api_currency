@@ -24,7 +24,7 @@ async def create_or_update_rates(rates: Dict[str, float]):
         else:
             db_currency_obj = currency_table.insert().values(name=currency_name, rate=rate)
             await database.execute(db_currency_obj)
-    return {'message': 'Rates updated successfully', 'rates': json.dumps(rates)}
+    return {'message': 'Rates updated successfully', 'rates': rates}
 
 
 async def get_rates(base, symbols):
