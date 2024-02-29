@@ -9,16 +9,6 @@ from currency.routes import routes as routes1
 from db import engine, database, Base
 
 
-# models.Base.metadata.create_all(bind=engine)
-
-# Создаем таблицы
-# async def create_tables():
-#     async with AsyncEngine(engine) as conn:
-#         await conn.run_sync(models.Base.metadata.create_all)
-#
-# create_tables()
-
-
 app = FastAPI()
 
 

@@ -1,11 +1,13 @@
 from typing import Union
 
 from fastapi import APIRouter, Query
+from pydantic import ValidationError
 from sqlalchemy import text
+from sqlalchemy.exc import NoResultFound
 
 from db import database
-from .schemas import CurrencyTimeStampOut
-from .services import create_or_update_rates, get_rates, get_ratio_coefficient
+from .schemas import CurrencyDateTimeOut
+from .services import create_or_update_rates, get_rates, get_ratio_coefficient, get_response_for_last_datetime
 
 router = APIRouter()
 
@@ -17,21 +19,19 @@ async def update_rates(base: str = 'EUR', symbols: str = ''):
         rates = data.get("rates")
         return await create_or_update_rates(rates)
     else:
-        return {"message": "Failed to update rates"}
+        return data
 
 
-@router.get("/get_last_update_datetime", tags=["currency"], response_model=CurrencyTimeStampOut)
+@router.get("/get_last_update_datetime", tags=["currency"])
 async def get_last_update_datetime():
-    last_datetime_update = await database.execute(text("SELECT MAX(date_and_time) FROM currency"))
-    return CurrencyTimeStampOut(date_and_time=last_datetime_update)
+    return await get_response_for_last_datetime()
 
 
 @router.get("/get_convertible_amount", tags=["currency"])
 async def get_convertible_amount(original_currency: str,
                                  target_currency: str,
                                  amount: int = Query(gt=0)) -> Union[float, dict]:
-    ratio_coefficient = await get_ratio_coefficient(original_currency, target_currency)
-    if ratio_coefficient:
-        return ratio_coefficient * amount
-    else:
-        return {"message": "Failed to get convertible amount"}
+    ratio_coefficient_dict = await get_ratio_coefficient(original_currency, target_currency)
+    if ratio_coefficient_dict['status'] == 'success':
+        ratio_coefficient_dict['data'] = ratio_coefficient_dict['data'] * amount
+    return ratio_coefficient_dict
